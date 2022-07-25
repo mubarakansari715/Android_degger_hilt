@@ -5,10 +5,13 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.mubarak.android_degger_hilt.databinding.ActivityMainBinding
+import com.mubarak.android_degger_hilt.home.adapter.HomeAdapter
+import com.mubarak.android_degger_hilt.home.model.HomeDataClass
 import com.mubarak.android_degger_hilt.home.viewmodel.HomeViewModel
-import com.mubarak.room_demo_kotlin.utils.ApiState
+import com.mubarak.android_degger_hilt.utils.ApiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.flow.collectLatest
@@ -29,17 +32,27 @@ class MainActivity : AppCompatActivity() {
 
             homeViewModel.mStatus.collectLatest {
                 when (it) {
+                    is ApiState.Loading -> {
+                        progress_circular.isVisible = true
+                    }
                     is ApiState.Empty -> {
                         Log.d(TAG, "@@@onCreate: Empty")
                     }
                     is ApiState.Success<*> -> {
+                        progress_circular.isVisible = false
                         Log.d(TAG, "@@@onCreate: Success ${it.data}")
-                        txtHomeData.text = it.data.toString()
+
+                        //success
+                        if (it.data is List<*>) {
+                            val listData: List<HomeDataClass> =
+                                it.data.filterIsInstance<HomeDataClass>()
+                            recyclerView.adapter = HomeAdapter(list = listData)
+                        }
                     }
                     is ApiState.Failure -> {
                         Log.d(TAG, "@@@onCreate: Failed ${it.error}")
+                        progress_circular.isVisible = false
                     }
-                    else -> {}
                 }
             }
         }

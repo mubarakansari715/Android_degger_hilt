@@ -3,8 +3,7 @@ package com.mubarak.android_degger_hilt.home.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mubarak.android_degger_hilt.home.repository.HomeRepository
-import com.mubarak.room_demo_kotlin.utils.ApiState
-import dagger.hilt.android.HiltAndroidApp
+import com.mubarak.android_degger_hilt.utils.ApiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
