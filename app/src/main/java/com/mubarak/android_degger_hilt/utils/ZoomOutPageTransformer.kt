@@ -1,4 +1,4 @@
-package com.example.iifl_assignment.utils
+package com.mubarak.android_degger_hilt.utils
 
 import android.view.View
 import androidx.viewpager2.widget.ViewPager2

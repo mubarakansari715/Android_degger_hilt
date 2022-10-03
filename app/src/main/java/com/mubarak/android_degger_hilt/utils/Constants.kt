@@ -1,4 +1,4 @@
-package com.mubarak.room_demo_kotlin.utils
+package com.mubarak.android_degger_hilt.utils
 
 object Constants {
 

@@ -1,17 +1,19 @@
 package com.mubarak.android_degger_hilt.home.ui
 
 import android.content.ContentValues.TAG
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.mubarak.android_degger_hilt.databinding.ActivityMainBinding
 import com.mubarak.android_degger_hilt.home.adapter.HomeAdapter
 import com.mubarak.android_degger_hilt.home.model.HomeDataClass
@@ -38,36 +40,59 @@ class MainActivity : AppCompatActivity() {
                 homeViewModel.fetchData()
             }, 3000)
 
-            homeViewModel.mStatus.collectLatest {
-                when (it) {
-                    is ApiState.Loading -> {
-                        progress_circular.isVisible = true
-                    }
-                    is ApiState.Empty -> {
-                        Log.d(TAG, "@@@onCreate: Empty")
-                    }
-                    is ApiState.Success<*> -> {
-                        progress_circular.isVisible = false
-                        Log.d(TAG, "@@@onCreate: Success ${it.data}")
+            if (isCheckInternetConnection())
+            {
+                homeViewModel.mStatus.collectLatest {
+                    when (it) {
+                        is ApiState.Loading -> {
+                            progress_circular.isVisible = true
+                        }
+                        is ApiState.Empty -> {
+                            Log.d(TAG, "@@@onCreate: Empty")
+                        }
+                        is ApiState.Success<*> -> {
+                            progress_circular.isVisible = false
+                            Log.d(TAG, "@@@onCreate: Success ${it.data}")
 
-                        //success
-                        if (it.data is List<*>) {
-                            val listData: List<HomeDataClass> =
-                                it.data.filterIsInstance<HomeDataClass>()
-                            recyclerView.adapter = HomeAdapter(list = listData) { click ->
+                            //success
+                            if (it.data is List<*>) {
+                                val listData: List<HomeDataClass> =
+                                    it.data.filterIsInstance<HomeDataClass>()
+                                recyclerView.adapter = HomeAdapter(list = listData) { click ->
 
-                                if (click != null) {
-                                    Toast.makeText(this@MainActivity, click.title, Toast.LENGTH_SHORT).show()
+                                    if (click != null) {
+                                        Toast.makeText(this@MainActivity, click.title, Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             }
                         }
-                    }
-                    is ApiState.Failure -> {
-                        Log.d(TAG, "@@@onCreate: Failed ${it.error}")
-                        progress_circular.isVisible = false
+                        is ApiState.Failure -> {
+                            Log.d(TAG, "@@@onCreate: Failed ${it.error}")
+                            progress_circular.isVisible = false
+                        }
                     }
                 }
             }
+            else{
+                _binding!!.progressCircular.visibility = View.GONE
+                Toast.makeText(this@MainActivity, "Connection Not Available", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
+    private fun isCheckInternetConnection(): Boolean {
+        val connectivityManager =
+            applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+        return when {
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            else -> false
+        }
+
+    }
+
 }

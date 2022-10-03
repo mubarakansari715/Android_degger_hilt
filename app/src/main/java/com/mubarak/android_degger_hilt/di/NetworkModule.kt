@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.mubarak.android_degger_hilt.network.ApiService
 import com.mubarak.android_degger_hilt.room.HomeDatabase
-import com.mubarak.room_demo_kotlin.utils.Constants
+import com.mubarak.android_degger_hilt.utils.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,9 +34,12 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideDatabase(app: Application): HomeDatabase =
-        Room.databaseBuilder(app, HomeDatabase::class.java, "local_database")
+        Room.databaseBuilder(app,
+            HomeDatabase::class.java,
+            "local_database"
+        )
             .allowMainThreadQueries()
+            .addMigrations(HomeDatabase.migration_1_2)
             .build()
-
 
 }
