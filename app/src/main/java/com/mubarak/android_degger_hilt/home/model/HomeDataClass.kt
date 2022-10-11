@@ -9,4 +9,6 @@ data class HomeDataClass(
     @PrimaryKey val id: Int,
     val title: String,
     val url: String,
+    val thumbnailUrl : String
+
 )
